@@ -1,0 +1,7 @@
+uploads/
+outputs/
+jobs/
+htpasswd
+__pycache__/
+*.pyc
+.env
