@@ -5,123 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Arabic Subtitler</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#111113;--surface:#1c1c1f;--surface2:#242428;
-  --border:#2e2e33;--border2:#3a3a40;--text:#e8e8ec;
-  --muted:#888890;--accent:#5c6bc0;--accent-hover:#6d7dd4;
-  --green:#3d9970;--red:#c0392b;--orange:#d4882a;--radius:8px;
-}
-body{background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;font-size:14px;min-height:100vh}
-
-.nav{height:52px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:12px;position:sticky;top:0;z-index:100}
-.nav-logo{font-weight:700;font-size:15px;letter-spacing:.01em;flex-shrink:0}
-.nav-logo em{font-style:normal;color:var(--accent)}
-.nav-steps{display:flex;gap:0;margin-right:auto}
-.ns{display:flex;align-items:center;gap:6px;padding:0 10px;height:52px;font-size:11px;color:var(--muted);border-right:1px solid var(--border);white-space:nowrap}
-.ns:first-child{border-left:1px solid var(--border)}
-.ns-dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;transition:.2s}
-.ns.active{color:var(--text)}.ns.active .ns-dot{border-color:var(--accent);background:var(--accent);color:#fff}
-.ns.done{color:var(--green)}.ns.done .ns-dot{border-color:var(--green);background:var(--green);color:#fff}
-@media(max-width:420px){.ns span{display:none}}
-
-.page{display:none}.page.on{display:flex;flex-direction:column}
-
-/* Phase 1 */
-#p1{min-height:calc(100vh - 52px);align-items:center;justify-content:center;padding:1rem}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:480px}
-.card-head{padding:10px 16px;border-bottom:1px solid var(--border);font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.04em;text-transform:uppercase}
-.card-body{padding:16px}
-.drop{border:1.5px dashed var(--border2);border-radius:var(--radius);padding:28px 16px;text-align:center;cursor:pointer;position:relative;transition:.15s;margin-bottom:14px}
-.drop:hover,.drop.drag{border-color:var(--accent);background:rgba(92,107,192,.04)}
-.drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.drop-ico{font-size:24px;margin-bottom:6px;opacity:.5}
-.drop-t{font-size:13px;font-weight:500;margin-bottom:3px}
-.drop-s{font-size:11px;color:var(--muted)}
-.fname{margin-top:6px;font-size:11px;color:var(--accent);word-break:break-all}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.field{display:flex;flex-direction:column;gap:4px}
-.field label{font-size:10px;color:var(--muted);font-weight:500;letter-spacing:.04em;text-transform:uppercase}
-.field select,.field input[type=number]{background:var(--bg);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:8px 10px;font-size:13px;font-family:'Cairo',sans-serif;outline:none;transition:.15s;width:100%}
-.field select:focus,.field input[type=number]:focus{border-color:var(--accent)}
-.field input[type=range]{accent-color:var(--accent);width:100%}
-
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;font-size:13px;font-family:'Cairo',sans-serif;font-weight:600;border:none;border-radius:6px;cursor:pointer;transition:.15s;width:100%;text-decoration:none}
-.btn-accent{background:var(--accent);color:#fff}.btn-accent:hover{background:var(--accent-hover)}
-.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text)}.btn-outline:hover{border-color:var(--text)}
-.btn-green{background:var(--green);color:#fff}.btn-green:hover{filter:brightness(1.1)}
-.btn:disabled{opacity:.35;cursor:not-allowed}
-.btn-sm{padding:7px 12px;font-size:12px;width:auto;flex:1}
-
-.queue-banner{display:none;margin-top:10px;padding:9px 12px;border-radius:6px;font-size:12px;background:rgba(212,136,42,.08);border:1px solid rgba(212,136,42,.2);color:var(--orange)}
-.queue-banner.on{display:flex;align-items:center;gap:8px}
-.queue-dot{width:7px;height:7px;border-radius:50%;background:var(--orange);flex-shrink:0;animation:pulse 1.2s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.status-box{display:none;margin-top:10px;padding:11px 13px;border-radius:6px;background:var(--surface2);border:1px solid var(--border2);font-size:12px}
-.status-box.on{display:block}
-.status-label{color:var(--muted);margin-bottom:5px}
-.status-phase{font-weight:600;color:var(--text);font-size:13px}
-.bar-track{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:7px}
-.bar-fill{height:100%;background:var(--accent);width:25%;animation:run 1.1s ease-in-out infinite}
-@keyframes run{0%{margin-left:-25%}100%{margin-left:110%}}
-.err{display:none;margin-top:8px;font-size:12px;color:var(--red);padding:8px 11px;background:rgba(192,57,43,.08);border-radius:6px}
-.err.on{display:block}
-
-/* Phase 2 — desktop */
-#p2{flex-direction:row;height:calc(100vh - 52px);overflow:hidden}
-.p2-tabs{display:none} /* hidden on desktop */
-.left{width:400px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
-.panel-head{padding:7px 12px;border-bottom:1px solid var(--border);font-size:10px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.04em;flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
-.video-box{background:#000;flex-shrink:0}
-.video-box video{width:100%;display:block;max-height:200px;object-fit:contain}
-.editor-box{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
-#srt{flex:1;background:var(--surface2);border:none;outline:none;color:var(--text);padding:12px;font-family:'Cairo',sans-serif;font-size:14px;line-height:2;resize:none;direction:rtl;text-align:right;overflow-y:auto}
-.left-foot{padding:8px 10px;border-top:1px solid var(--border);display:flex;gap:7px;flex-shrink:0}
-.burn-status{padding:0 10px 8px;display:none}.burn-status.on{display:block}
-.right{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px;background:var(--bg)}
-.sec-title{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding-bottom:7px;border-bottom:1px solid var(--border);margin-bottom:10px}
-.sg{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.swatches{display:flex;gap:6px;flex-wrap:wrap}
-.sw{width:22px;height:22px;border-radius:4px;cursor:pointer;border:2px solid transparent;transition:.12s}
-.sw:hover{transform:scale(1.12)}.sw.on{border-color:var(--accent)}
-.presets{display:flex;gap:7px}
-.preset{flex:1;padding:6px;font-size:11px;font-family:'Cairo',sans-serif;font-weight:600;cursor:pointer;border:1px solid var(--border2);border-radius:6px;background:transparent;color:var(--muted);transition:.15s}
-.preset:hover{border-color:var(--accent);color:var(--text)}
-.screen{background:#000;aspect-ratio:16/9;border-radius:6px;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;padding:12px;border:1px solid var(--border)}
-#prev{font-family:'Cairo',sans-serif;text-align:center;max-width:88%;transition:.2s;line-height:1.3}
-
-/* Phase 2 — mobile */
-@media(max-width:700px){
-  #p2{flex-direction:column;height:auto;min-height:calc(100vh - 52px);overflow:visible}
-  .p2-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;position:sticky;top:52px;z-index:50}
-  .p2-tab{flex:1;padding:10px;font-size:12px;font-family:'Cairo',sans-serif;font-weight:600;background:transparent;border:none;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:.15s}
-  .p2-tab.on{color:var(--text);border-bottom-color:var(--accent)}
-  .left{width:100%;border-right:none;height:auto;display:none}
-  .left.show{display:flex}
-  .video-box video{max-height:160px}
-  #srt{min-height:200px;flex:none}
-  .right{display:none;padding:12px}
-  .right.show{display:flex}
-  #mobile-export{display:block !important}
-}
-
-/* Phase 3 */
-#p3{align-items:center;justify-content:center;min-height:calc(100vh - 52px);padding:1rem}
-.done{text-align:center;padding:2rem 1.5rem;max-width:320px;width:100%}
-.done-check{width:52px;height:52px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 1rem}
-.done h2{font-size:18px;font-weight:700;margin-bottom:5px}
-.done p{font-size:12px;color:var(--muted);margin-bottom:1.25rem}
-.done-btns{display:flex;flex-direction:column;gap:9px}
-.edit-note{font-size:10px;color:var(--muted);margin-top:-4px;opacity:.8}
-
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<!-- NAV -->
 <nav class="nav">
   <div class="nav-logo">arabic<em>sub</em></div>
   <div class="nav-steps">
@@ -131,11 +19,12 @@ body{background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;font-
   </div>
 </nav>
 
-<!-- PHASE 1 -->
+<!-- PHASE 1 — Upload -->
 <div class="page on" id="p1">
   <div class="card">
     <div class="card-head">مشروع جديد</div>
     <div class="card-body">
+
       <div class="drop" id="drop">
         <input type="file" id="vfile" accept="video/*">
         <div class="drop-ico">▶</div>
@@ -143,6 +32,7 @@ body{background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;font-
         <div class="drop-s">MP4 · MOV · AVI · MKV</div>
         <div class="fname" id="fname"></div>
       </div>
+
       <div class="row2">
         <div class="field">
           <label>النموذج</label>
@@ -156,22 +46,64 @@ body{background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;font-
           <input type="number" id="mc" value="35" min="15" max="70">
         </div>
       </div>
+
       <button class="btn btn-accent" id="tbtn" onclick="go()">▶  ابدأ التفريغ</button>
+
       <div class="queue-banner" id="qbanner">
         <div class="queue-dot"></div>
         <span id="qtext">يوجد فيديو قيد المعالجة</span>
       </div>
+
       <div class="status-box" id="sbox">
         <div class="status-label">الحالة</div>
         <div class="status-phase" id="sphase">جاري التفريغ...</div>
         <div class="bar-track"><div class="bar-fill"></div></div>
       </div>
+
+      <!-- Waiting info panel — shown during processing -->
+      <div class="waiting-info" id="winfo">
+        <div class="wi-title">💡 لماذا الترجمة مهمة؟</div>
+        <div class="wi-cards">
+          <div class="wi-card">
+            <span class="wi-icon">🔇</span>
+            <div>
+              <strong>85% من المشاهدين</strong>
+              <p>يشاهدون الفيديوهات بدون صوت في الأماكن العامة</p>
+            </div>
+          </div>
+          <div class="wi-card">
+            <span class="wi-icon">📈</span>
+            <div>
+              <strong>+40% وقت المشاهدة</strong>
+              <p>الفيديوهات المترجمة تُشاهَد لمدة أطول في المتوسط</p>
+            </div>
+          </div>
+          <div class="wi-card">
+            <span class="wi-icon">♿</span>
+            <div>
+              <strong>إتاحة أوسع</strong>
+              <p>تصل إلى جمهور أصم أو ضعيف السمع وغير الناطقين بالعربية</p>
+            </div>
+          </div>
+          <div class="wi-card">
+            <span class="wi-icon">🔍</span>
+            <div>
+              <strong>أفضل في البحث</strong>
+              <p>المحتوى النصي يُفهرَس من محركات البحث مما يزيد الظهور</p>
+            </div>
+          </div>
+        </div>
+        <div class="wi-tip">
+          ⏳ المعالجة تأخذ وقتاً حسب حجم الفيديو والنموذج المختار — يمكنك انتظار النتيجة هنا
+        </div>
+      </div>
+
       <div class="err" id="e1"></div>
     </div>
   </div>
 </div>
 
-<!-- PHASE 2 -->
+<!-- PHASE 2 — Editor -->
 <div class="page" id="p2">
   <div class="p2-tabs">
     <button class="p2-tab on" onclick="switchTab('editor')">✏️ المحرر</button>
@@ -182,7 +114,10 @@ body{background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;font-
     <div class="panel-head"><span>الفيديو الأصلي</span></div>
     <div class="video-box"><video id="vid" controls preload="metadata"></video></div>
     <div class="editor-box">
-      <div class="panel-head"><span>محرر SRT</span><span style="font-size:9px;opacity:.5">عربي </span></div>
+      <div class="panel-head">
+        <span>محرر SRT</span>
+        <span style="font-size:9px;opacity:.5">عربي</span>
+      </div>
       <textarea id="srt" spellcheck="false" dir="rtl" lang="ar"></textarea>
     </div>
     <div class="left-foot">
@@ -209,16 +144,24 @@ body{background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;font-
     <div>
       <div class="sec-title">الخط</div>
       <div class="sg">
-        <div class="field"><label>النوع</label>
-          <select id="fn" onchange="upd()"><option>Cairo</option><option>Amiri</option><option>DejaVu Sans</option><option>FreeSans</option></select>
+        <div class="field">
+          <label>النوع</label>
+          <select id="fn" onchange="upd()">
+            <option>Cairo</option><option>Amiri</option>
+            <option>DejaVu Sans</option><option>FreeSans</option>
+          </select>
         </div>
-        <div class="field"><label>الغامق</label>
-          <select id="bold" onchange="upd()"><option value="-1">نعم</option><option value="0">لا</option></select>
+        <div class="field">
+          <label>الغامق</label>
+          <select id="bold" onchange="upd()">
+            <option value="-1">نعم</option><option value="0">لا</option>
+          </select>
         </div>
       </div>
       <div class="field" style="margin-top:9px">
         <label>الحجم — <span id="fsv" style="color:var(--accent)">32</span>px</label>
-        <input type="range" id="fs" min="16" max="64" value="32" oninput="document.getElementById('fsv').textContent=this.value;upd()">
+        <input type="range" id="fs" min="16" max="64" value="32"
+               oninput="document.getElementById('fsv').textContent=this.value;upd()">
       </div>
     </div>
     <div>
@@ -247,32 +190,34 @@ body{background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;font-
       <div class="sec-title">الحدود والظل</div>
       <div class="field" style="margin-bottom:9px">
         <label>الحدود — <span id="ov" style="color:var(--accent)">3</span></label>
-        <input type="range" id="ol" min="0" max="6" step=".5" value="3" oninput="document.getElementById('ov').textContent=this.value;upd()">
+        <input type="range" id="ol" min="0" max="6" step=".5" value="3"
+               oninput="document.getElementById('ov').textContent=this.value;upd()">
       </div>
       <div class="field">
         <label>الظل — <span id="sv" style="color:var(--accent)">0</span></label>
-        <input type="range" id="sh" min="0" max="5" step=".5" value="0" oninput="document.getElementById('sv').textContent=this.value;upd()">
+        <input type="range" id="sh" min="0" max="5" step=".5" value="0"
+               oninput="document.getElementById('sv').textContent=this.value;upd()">
       </div>
     </div>
     <div>
       <div class="sec-title">الموضع</div>
       <div class="field">
         <label>الهامش السفلي — <span id="mv" style="color:var(--accent)">30</span></label>
-        <input type="range" id="mg" min="0" max="80" value="30" oninput="document.getElementById('mv').textContent=this.value;upd()">
+        <input type="range" id="mg" min="0" max="80" value="30"
+               oninput="document.getElementById('mv').textContent=this.value;upd()">
       </div>
     </div>
     <div>
       <div class="sec-title">معاينة</div>
       <div class="screen"><div id="prev">بسم الله الرحمن الرحيم</div></div>
     </div>
-    <!-- Mobile only: export button in style tab -->
     <div id="mobile-export" style="display:none">
       <button class="btn btn-green" onclick="switchTab('editor');setTimeout(burn,150)">دمج وتصدير ←</button>
     </div>
   </div>
 </div>
 
-<!-- PHASE 3 -->
+<!-- PHASE 3 — Done -->
 <div class="page" id="p3">
   <div class="done">
     <div class="done-check">✓</div>
@@ -287,176 +232,6 @@ body{background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;font-
   </div>
 </div>
 
-<script>
-const API = '';
-let jid = null, vfn = null, col = '&H00FFFFFF';
-let dirty = false, pollTimer = null;
-
-window.addEventListener('beforeunload', e => {
-  if (!dirty) return;
-  e.preventDefault(); e.returnValue = '';
-});
-
-// ── Mobile tabs ───────────────────────────────────────────────────────────────
-function switchTab(tab) {
-  const isEditor = tab === 'editor';
-  document.getElementById('tab-editor').classList.toggle('show', isEditor);
-  document.getElementById('tab-style').classList.toggle('show', !isEditor);
-  document.querySelectorAll('.p2-tab').forEach((t,i) => t.classList.toggle('on', isEditor?i===0:i===1));
-  document.getElementById('mobile-export').style.display = (!isEditor && window.innerWidth<=700) ? 'block' : 'none';
-}
-
-// ── Drop zone ─────────────────────────────────────────────────────────────────
-const drop = document.getElementById('drop'), fi = document.getElementById('vfile');
-drop.addEventListener('dragover', e=>{e.preventDefault();drop.classList.add('drag')});
-drop.addEventListener('dragleave', ()=>drop.classList.remove('drag'));
-drop.addEventListener('drop', e=>{e.preventDefault();drop.classList.remove('drag');if(e.dataTransfer.files[0]){fi.files=e.dataTransfer.files;fname()}});
-fi.addEventListener('change', fname);
-function fname(){const f=fi.files[0];document.getElementById('fname').textContent=f?'✓ '+f.name:'';}
-
-// ── Swatches ──────────────────────────────────────────────────────────────────
-document.getElementById('sws').addEventListener('click', e=>{
-  const sw=e.target.closest('.sw');if(!sw)return;
-  document.querySelectorAll('.sw').forEach(s=>s.classList.remove('on'));
-  sw.classList.add('on');col=sw.dataset.c;upd();
-});
-
-// ── Preview ───────────────────────────────────────────────────────────────────
-function upd(){
-  const el=document.getElementById('prev');
-  const hx={'&H00FFFFFF':'#fff','&H0000FFFF':'#ff0','&H0040FFFF':'#fc0','&H000040FF':'#f50','&H00FF8000':'#09f','&H0000FF00':'#3c3','&H00000000':'#000'};
-  const bx={'&H00000000':'transparent','&H90000000':'rgba(0,0,0,.55)','&HFF000000':'#000'};
-  const fs=Math.min(parseInt(document.getElementById('fs').value),28);
-  const ol=parseFloat(document.getElementById('ol').value);
-  const sh=parseFloat(document.getElementById('sh').value);
-  const bg=document.getElementById('bg').value;
-  el.style.fontFamily=document.getElementById('fn').value+',sans-serif';
-  el.style.fontSize=fs+'px';
-  el.style.fontWeight=document.getElementById('bold').value==='-1'?'700':'400';
-  el.style.color=hx[col]||'#fff';
-  el.style.background=bx[bg]||'transparent';
-  el.style.padding=bg!=='&H00000000'?'3px 10px':'0';
-  el.style.textShadow=ol>0?`0 0 ${ol}px #000,0 0 ${ol*1.8}px #000${sh>0?`,${sh}px ${sh}px ${sh}px #000`:''}`:'none';
-  document.querySelector('.screen').style.paddingBottom=document.getElementById('mg').value+'px';
-}
-
-// ── Presets ───────────────────────────────────────────────────────────────────
-function preset(n){
-  const p={netflix:{fs:32,ol:2.5,sh:1,bold:'-1',bg:'&H00000000',mg:25},reels:{fs:38,ol:3.5,sh:0,bold:'-1',bg:'&H00000000',mg:32},classic:{fs:28,ol:1,sh:1,bold:'0',bg:'&H90000000',mg:20}}[n];
-  document.getElementById('fs').value=p.fs;document.getElementById('fsv').textContent=p.fs;
-  document.getElementById('ol').value=p.ol;document.getElementById('ov').textContent=p.ol;
-  document.getElementById('sh').value=p.sh;document.getElementById('sv').textContent=p.sh;
-  document.getElementById('bold').value=p.bold;document.getElementById('bg').value=p.bg;
-  document.getElementById('mg').value=p.mg;document.getElementById('mv').textContent=p.mg;
-  col='&H00FFFFFF';document.querySelectorAll('.sw').forEach(s=>s.classList.toggle('on',s.dataset.c===col));upd();
-}
-
-// ── Nav ───────────────────────────────────────────────────────────────────────
-function step(n){['s1','s2','s3'].forEach((id,i)=>{document.getElementById(id).className='ns'+(i+1<n?' done':i+1===n?' active':'');})}
-function show(id){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
-  document.getElementById(id).classList.add('on');
-  if(id==='p2' && window.innerWidth<=700) switchTab('editor');
-}
-function err(id,msg){const e=document.getElementById(id);e.textContent='⚠ '+msg;e.classList.add('on');}
-
-const PHASE_LABELS={queued:'في الطابور — ينتظر دوره...',transcribing:'جاري تفريغ الكلام بالذكاء الاصطناعي...',queued_burn:'في الطابور — ينتظر الدمج...',burning:'جاري دمج الترجمة في الفيديو...',done_transcribe:'اكتمل التفريغ ✓',done_burn:'اكتمل الدمج ✓',failed:'حدث خطأ'};
-
-// ── Upload ────────────────────────────────────────────────────────────────────
-async function go(){
-  const f=fi.files[0];if(!f){err('e1','اختر فيديو أولاً');return;}
-  const btn=document.getElementById('tbtn');
-  btn.disabled=true;btn.textContent='جاري الرفع...';
-  document.getElementById('e1').classList.remove('on');dirty=true;
-  const fd=new FormData();fd.append('video',f);fd.append('max_chars',document.getElementById('mc').value);fd.append('model',document.getElementById('model').value);
-  try{
-    const r=await fetch(`${API}/transcribe`,{method:'POST',body:fd});
-    const d=await r.json();if(!r.ok)throw new Error(d.detail||'فشل الرفع');
-    jid=d.job_id;vfn=d.video_filename;
-    document.getElementById('sbox').classList.add('on');btn.textContent='تم الرفع — في الطابور';
-    pollTranscribe();
-  }catch(e){err('e1',e.message);btn.disabled=false;btn.textContent='▶  ابدأ التفريغ';dirty=false;}
-}
-
-function pollTranscribe(){
-  clearInterval(pollTimer);
-  pollTimer=setInterval(async()=>{
-    try{
-      const[jobRes,qRes]=await Promise.all([fetch(`${API}/job/${jid}`).then(r=>r.json()),fetch(`${API}/queue-status`).then(r=>r.json())]);
-      document.getElementById('sphase').textContent=PHASE_LABELS[jobRes.status]||jobRes.status;
-      const banner=document.getElementById('qbanner');
-      const isQueued=jobRes.status==='queued';
-      banner.classList.toggle('on',isQueued&&qRes.waiting>0);
-      if(isQueued&&qRes.waiting>0)document.getElementById('qtext').textContent=`يوجد ${qRes.waiting} ${qRes.waiting===1?'فيديو':'فيديوهات'} قبلك في الطابور`;
-      if(jobRes.status==='done_transcribe'){
-        clearInterval(pollTimer);
-        document.getElementById('sbox').classList.remove('on');document.getElementById('qbanner').classList.remove('on');
-        document.getElementById('vid').src=`/video/${jid}`;document.getElementById('srt').value=jobRes.srt_content;
-        show('p2');step(2);upd();
-      }
-      if(jobRes.status==='failed'){
-        clearInterval(pollTimer);document.getElementById('sbox').classList.remove('on');
-        err('e1',jobRes.error||'فشل التفريغ');
-        const btn=document.getElementById('tbtn');btn.disabled=false;btn.textContent='▶  ابدأ التفريغ';dirty=false;
-      }
-    }catch(e){}
-  },3000);
-}
-
-// ── Burn ──────────────────────────────────────────────────────────────────────
-async function burn(){
-  const btn=document.getElementById('bbtn');btn.disabled=true;btn.textContent='جاري الإرسال...';
-  document.getElementById('bstatus').classList.add('on');document.getElementById('e2').classList.remove('on');
-  const fd=new FormData();
-  fd.append('job_id',jid);fd.append('video_filename',vfn);fd.append('srt_content',document.getElementById('srt').value);
-  fd.append('font_name',document.getElementById('fn').value);fd.append('font_size',document.getElementById('fs').value);
-  fd.append('primary_color',col);fd.append('outline_color','&H00000000');
-  fd.append('back_color',document.getElementById('bg').value);fd.append('bold',document.getElementById('bold').value);
-  fd.append('outline',document.getElementById('ol').value);fd.append('shadow',document.getElementById('sh').value);fd.append('margin_v',document.getElementById('mg').value);
-  try{
-    const r=await fetch(`${API}/burn`,{method:'POST',body:fd});const d=await r.json();
-    if(!r.ok)throw new Error(d.detail||'فشل الإرسال');pollBurn();
-  }catch(e){err('e2',e.message);btn.disabled=false;btn.textContent='دمج وتصدير ←';document.getElementById('bstatus').classList.remove('on');}
-}
-
-function pollBurn(){
-  clearInterval(pollTimer);
-  pollTimer=setInterval(async()=>{
-    try{
-      const jobRes=await fetch(`${API}/job/${jid}`).then(r=>r.json());
-      document.getElementById('bphase').textContent=PHASE_LABELS[jobRes.status]||jobRes.status;
-      if(jobRes.status==='done_burn'){
-        clearInterval(pollTimer);document.getElementById('bstatus').classList.remove('on');
-        document.getElementById('dl').href=`/download/${jid}`;show('p3');step(3);
-        const btn=document.getElementById('bbtn');btn.disabled=false;btn.textContent='دمج وتصدير ←';
-      }
-      if(jobRes.status==='failed'){
-        clearInterval(pollTimer);document.getElementById('bstatus').classList.remove('on');
-        err('e2',jobRes.error||'فشل الدمج');
-        const btn=document.getElementById('bbtn');btn.disabled=false;btn.textContent='دمج وتصدير ←';
-      }
-    }catch(e){}
-  },3000);
-}
-
-function backToEdit(){show('p2');step(2);document.getElementById('srt').scrollTop=0;}
-
-// Fixed: async so await works correctly
-async function hardReset(){
-  if(!window.confirm('ستفقد جميع بيانات المشروع الحالي. هل أنت متأكد؟'))return;
-  if(jid)await fetch(`${API}/cleanup/${jid}`,{method:'DELETE'}).catch(()=>{});
-  clearInterval(pollTimer);
-  dirty=false;jid=null;vfn=null;col='&H00FFFFFF';
-  fi.value='';
-  document.getElementById('fname').textContent='';document.getElementById('srt').value='';document.getElementById('vid').src='';
-  document.getElementById('e1').classList.remove('on');document.getElementById('e2').classList.remove('on');
-  document.getElementById('sbox').classList.remove('on');document.getElementById('qbanner').classList.remove('on');
-  document.getElementById('tbtn').disabled=false;document.getElementById('tbtn').textContent='▶  ابدأ التفريغ';
-  show('p1');step(1);
-}
-
-function dlSRT(){if(jid)window.open(`${API}/download-srt/${jid}`);}
-upd();
-</script>
+<script src="app.js"></script>
 </body>
 </html>
