@@ -6,8 +6,17 @@ os.makedirs(UPLOADS, exist_ok=True)
 os.makedirs(OUTPUTS, exist_ok=True)
 
 def transcribe_video(video_path: str, srt_path: str, model="small", max_chars=35):
+    audio_path = video_path.rsplit(".", 1)[0] + "_audio.wav"
+    
+    # Extract lightweight audio track first
     subprocess.run([
-        "stable-ts", video_path,
+        "ffmpeg", "-y", "-i", video_path,
+        "-vn", "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le",
+        audio_path
+    ], check=True)
+
+    subprocess.run([
+        "stable-ts", audio_path,   # <-- audio, not video
         "--language", "Arabic",
         "--model", model,
         "--device", "cpu",
@@ -18,6 +27,7 @@ def transcribe_video(video_path: str, srt_path: str, model="small", max_chars=35
         "--output", srt_path
     ], check=True)
 
+    os.remove(audio_path)  # cleanup
 
 def burn_subtitles(
     video_path, srt_path, ass_path, out_path,
@@ -48,5 +58,7 @@ def burn_subtitles(
     subprocess.run([
         "ffmpeg", "-y", "-i", video_path,
         "-vf", f"ass='{ass_path}'",
+        "-preset", "ultrafast",   # <-- biggest speed gain
+        "-crf", "23",             # optional: quality control (18=high, 28=low)
         out_path
     ], check=True)
