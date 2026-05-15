@@ -366,7 +366,7 @@ body {
 .preset:hover { border-color: var(--accent); color: var(--text); }
 
 .screen {
-  background: #000;
+  background: #fff;
   aspect-ratio: 16/9;
   border-radius: 6px;
   overflow: hidden;
@@ -563,6 +563,7 @@ body {
     </div>
     <div class="left-foot">
       <button class="btn btn-outline btn-sm" onclick="dlSRT()">↓ SRT</button>
+      <button class="btn btn-outline btn-sm" id="copybtn" onclick="copySRT()">⎘ نسخ</button>
       <button class="btn btn-green btn-sm" id="bbtn" onclick="burn()">دمج وتصدير ←</button>
     </div>
     <div class="burn-status" id="bstatus">
@@ -621,9 +622,9 @@ body {
       <div class="sec-title">الخلفية</div>
       <div class="field">
         <select id="bg" onchange="upd()">
-          <option value="&H00000000">بدون خلفية</option>
-          <option value="&H90000000">شفافة جزئياً</option>
-          <option value="&HFF000000">سوداء</option>
+          <option value="none">بدون خلفية</option>
+          <option value="semi">شفافة جزئياً</option>
+          <option value="black">سوداء</option>
         </select>
       </div>
     </div>
@@ -736,11 +737,8 @@ function updatePreview() {
     '&H0000FF00': '#3c3',
     '&H00000000': '#000',
   };
-  const bgMap = {
-    '&H00000000': 'transparent',
-    '&H90000000': 'rgba(0,0,0,.55)',
-    '&HFF000000': '#000',
-  };
+  const bgPreviewMap = { none: 'transparent', semi: 'rgba(0,0,0,.55)', black: '#000' };
+  const bgAssMap     = { none: '&H00000000',  semi: '&H90000000',      black: '&HFF000000' };
 
   const fs = Math.min(parseInt(document.getElementById('fs').value), 28);
   const ol = parseFloat(document.getElementById('ol').value);
@@ -751,8 +749,8 @@ function updatePreview() {
   el.style.fontSize    = fs + 'px';
   el.style.fontWeight  = document.getElementById('bold').value === '-1' ? '700' : '400';
   el.style.color       = colorMap[col] || '#fff';
-  el.style.background  = bgMap[bg] || 'transparent';
-  el.style.padding     = bg !== '&H00000000' ? '3px 10px' : '0';
+  el.style.background  = bgPreviewMap[bg] || 'transparent';
+  el.style.padding     = bg !== 'none' ? '3px 10px' : '0';
   el.style.textShadow  = ol > 0
     ? `0 0 ${ol}px #000, 0 0 ${ol * 1.8}px #000${sh > 0 ? `, ${sh}px ${sh}px ${sh}px #000` : ''}`
     : 'none';
@@ -766,9 +764,9 @@ const upd = updatePreview;
 // ── Style presets ─────────────────────────────────────────────────────────────
 function preset(name) {
   const presets = {
-    netflix: { fs: 32, ol: 2.5, sh: 1, bold: '-1', bg: '&H00000000', mg: 25 },
-    reels:   { fs: 38, ol: 3.5, sh: 0, bold: '-1', bg: '&H00000000', mg: 32 },
-    classic: { fs: 28, ol: 1,   sh: 1, bold: '0',  bg: '&H90000000', mg: 20 },
+    netflix: { fs: 32, ol: 2.5, sh: 1, bold: '-1', bg: 'none',  mg: 25 },
+    reels:   { fs: 38, ol: 3.5, sh: 0, bold: '-1', bg: 'none',  mg: 32 },
+    classic: { fs: 28, ol: 1,   sh: 1, bold: '0',  bg: 'semi',  mg: 20 },
   };
   const p = presets[name];
 
@@ -916,7 +914,7 @@ async function burn() {
   fd.append('font_size',     document.getElementById('fs').value);
   fd.append('primary_color', col);
   fd.append('outline_color', '&H00000000');
-  fd.append('back_color',    document.getElementById('bg').value);
+  fd.append('back_color',    { none: '&H00000000', semi: '&H90000000', black: '&HFF000000' }[document.getElementById('bg').value] || '&H00000000');
   fd.append('bold',          document.getElementById('bold').value);
   fd.append('outline',       document.getElementById('ol').value);
   fd.append('shadow',        document.getElementById('sh').value);
@@ -1002,6 +1000,17 @@ async function hardReset() {
 
 function dlSRT() {
   if (jid) window.open(`${API}/download-srt/${jid}`);
+}
+
+function copySRT() {
+  const text = document.getElementById('srt').value;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copybtn');
+    const orig = btn.textContent;
+    btn.textContent = '✓ تم';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
