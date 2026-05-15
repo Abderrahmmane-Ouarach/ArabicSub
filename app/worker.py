@@ -5,8 +5,7 @@ OUTPUTS = "outputs"
 os.makedirs(UPLOADS, exist_ok=True)
 os.makedirs(OUTPUTS, exist_ok=True)
 
-
-def transcribe_video(video_path: str, srt_path: str, model="medium", max_chars=35):
+def transcribe_video(video_path: str, srt_path: str, model="small", max_chars=35):
     subprocess.run([
         "stable-ts", video_path,
         "--language", "Arabic",

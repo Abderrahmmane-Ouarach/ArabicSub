@@ -1,4 +1,5 @@
 import os
+import glob
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse
@@ -169,3 +170,15 @@ def download_srt(job_id: str):
         if os.path.exists(path):
             return FileResponse(path, filename="subtitles.srt")
     raise HTTPException(404, "SRT not found")
+
+@app.delete("/cleanup/{job_id}")
+def cleanup(job_id: str):
+    # Delete all files related to this job
+    for pattern in [
+        f"uploads/{job_id}_*",
+        f"outputs/{job_id}*",
+        f"jobs/{job_id}.json"
+    ]:
+        for f in glob.glob(pattern):
+            os.remove(f)
+    return {"deleted": job_id}
